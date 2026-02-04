@@ -35,6 +35,33 @@ class SauceDemoLoginTest {
         System.out.println("✅ Тест пройден: Успешный логин с standard_user / secret_sauce");
     }
 
+    @Test
+    @DisplayName("Логин с неверным паролем должен показать ошибку")
+    void testLoginWithInvalidPassword() {
+        String validUsername = "standard_user";
+        String invalidPassword = "wrong_password";
+
+        loginPage.open();
+        loginPage.login(validUsername, invalidPassword);
+
+        assertTrue(loginPage.isErrorMessageDisplayed(),
+                "Должно отображаться сообщение об ошибке");
+
+        String expectedErrorMessage = "Epic sadface: Username and password do not match any user in this service";
+        String actualErrorMessage = loginPage.getErrorMessageText();
+
+        assertEquals(expectedErrorMessage, actualErrorMessage,
+                "Текст сообщения об ошибке должен соответствовать ожидаемому");
+
+        assertTrue(loginPage.getCurrentUrl().contains("saucedemo.com") &&
+                        !loginPage.getCurrentUrl().contains("inventory.html"),
+                "Должны остаться на странице логина");
+
+        assertTrue(loginPage.isLoginButtonEnabled(),
+                "Кнопка логина должна отображаться");
+        System.out.println("✅ Тест пройден: Логин с неверным паролем показал корректную ошибку");
+    }
+
     @AfterEach
     void tearDown() {
         if (driver != null) {
