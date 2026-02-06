@@ -140,6 +140,56 @@ class SauceDemoLoginTest {
         System.out.println("✅ Тест пройден: Логин с пустыми полями показал корректную ошибку");
     }
 
+    @Test
+    @Order(4)
+    @DisplayName("Логин заблокированного пользователя (locked_out_user)")
+    void testLoginWithLockedOutUser() {
+        String lockedUsername = "locked_out_user";
+        String validPassword = "secret_sauce";
+
+        loginPage.open();
+        System.out.println("Тест: Логин заблокированного пользователя '" + lockedUsername + "'");
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        loginPage.login(lockedUsername, validPassword);
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        String currentUrl = driver.getCurrentUrl();
+        System.out.println("Текущий URL после попытки логина заблокированным пользователем: " + currentUrl);
+
+        assertTrue(currentUrl.equals("https://www.saucedemo.com/") ||
+                        currentUrl.contains("saucedemo.com"),
+                "Должны остаться на странице логина. Текущий URL: " + currentUrl);
+
+        boolean isErrorDisplayed = loginPage.isErrorMessageDisplayed();
+        assertTrue(isErrorDisplayed,
+                "Должно отображаться сообщение об ошибке для заблокированного пользователя");
+
+        String errorMessage = loginPage.getErrorMessageText();
+        System.out.println("Текст ошибки для заблокированного пользователя: " + errorMessage);
+
+        String expectedErrorMessage = "Epic sadface: Sorry, this user has been locked out.";
+        assertEquals(expectedErrorMessage, errorMessage,
+                "Текст ошибки должен точно соответствовать ожидаемому. Ожидалось: '" +
+                        expectedErrorMessage + "', получено: '" + errorMessage + "'");
+
+        boolean isLoginButtonEnabled = loginPage.isLoginButtonEnabled();
+        assertTrue(isLoginButtonEnabled,
+                "Кнопка логина должна быть доступна после неудачной попытки");
+
+        System.out.println("✅ Тест пройден: Логин заблокированного пользователя показал корректную ошибку");
+    }
+
     @AfterEach
     void tearDown() {
         if (driver != null) {
