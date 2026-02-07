@@ -1,0 +1,1 @@
+✅ Тест пройден: Успешный логин с standard_user / secret_sauce
